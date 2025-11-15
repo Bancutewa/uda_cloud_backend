@@ -4,18 +4,6 @@ import { Category } from "../entity/category.entity";
 import { Product } from "../entity/product.entity";
 import { UsersEntity } from "../entity/user.entity";
 import { CartEntity } from "../entity/cart.entity";
-import * as fs from "fs";
-import * as path from "path";
-
-interface FishImage {
-  id: number;
-  name: string;
-  url: string;
-}
-
-interface FishImagesData {
-  images: FishImage[];
-}
 
 async function seedDatabase() {
   try {
@@ -65,78 +53,272 @@ async function seedDatabase() {
       categories.push(category);
     }
 
-    // Load fish images data
-    console.log("Loading fish images data...");
-    const fishImagesPath = path.join(
-      __dirname,
-      "../../../../mysql/fishimages.json"
-    );
-    const fishImagesData: FishImagesData = JSON.parse(
-      fs.readFileSync(fishImagesPath, "utf-8")
-    );
+    // Define fish images data
+    const imagesData = [
+      {
+        id: 1,
+        name: "fish1.jpg",
+        url: "https://freshwateraquatica.org/products/golden-algae-eater",
+      },
+      {
+        id: 2,
+        name: "fish2.jpg",
+        url: "https://freshwateraquatica.org/products/hillstream-loach",
+      },
+      {
+        id: 3,
+        name: "fish3.jpg",
+        url: "https://freshwateraquatica.org/products/tank-cleaner-fish-sucker-fish-pleco-black",
+      },
+      {
+        id: 4,
+        name: "fish4.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/files/suckerpleco.png?v=1741858187&width=533",
+      },
+      {
+        id: 5,
+        name: "fish5.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/products/shortfin-abino-small.jpg?v=1693571135&width=533",
+      },
+      {
+        id: 6,
+        name: "fish6.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/files/albinosucker.png?v=1741858318",
+      },
+      {
+        id: 7,
+        name: "fish7.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/products/Panda-Garra-7_1024x1024_1cbd90ff-269b-4889-a264-d7fbcce8b4f9.jpg?v=1693569363&width=533",
+      },
+      {
+        id: 8,
+        name: "fish8.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/products/Screenshot_243.png?v=1693570237&width=533",
+      },
+      {
+        id: 9,
+        name: "fish9.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/products/albinocory.png?v=1693571132",
+      },
+      {
+        id: 10,
+        name: "fish10.jpg",
+        url: "https://freshwateraquatica.org/cdn/shop/products/CORYDORAPEPPERfreshwateraquatica_1.png?v=1693570214&width=533",
+      },
+    ];
 
-    // Seed Products from fish images
+    // Seed Products from images data
     console.log("Seeding products...");
 
-    // Define meaningful fish names for each image
-    const fishNames = [
-      "Cá Neon Tetra Đỏ",
-      "Cá Algae Eater Vàng",
-      "Cá Pleco Đen",
-      "Cá Pleco Trắng",
-      "Cá Corydora Albino",
-      "Cá Pleco Albino",
-      "Cá Garra Panda",
-      "Cá Corydora Pepper",
-      "Cá Corydora Albino Hồng",
-      "Cá Corydora Panda",
+    // Define products with image URLs from imagesData
+    const productsData = [
+      {
+        name: "Cá Neon Tetra Đỏ",
+        image: imagesData[0].url,
+        description:
+          "Cá Neon Tetra màu đỏ tươi sáng, rất năng động và dễ chăm sóc. Phù hợp cho hồ cá cộng đồng.",
+        categoryName: "Cá Neon",
+        price: 150000,
+        quantity: 25,
+      },
+      {
+        name: "Cá Bảy Màu Dumbo",
+        image: imagesData[1].url,
+        description:
+          "Cá Bảy Màu Dumbo với màu sắc rực rỡ, cá cảnh rất đẹp và nổi bật trong hồ.",
+        categoryName: "Cá Bảy Màu",
+        price: 200000,
+        quantity: 15,
+      },
+      {
+        name: "Cá Ali Thái",
+        image: imagesData[2].url,
+        description:
+          "Cá Ali Thái với thân hình thon dài, màu sắc đẹp mắt. Phù hợp cho hồ cá thủy sinh.",
+        categoryName: "Cá Ali Thái",
+        price: 180000,
+        quantity: 20,
+      },
+      {
+        name: "Cá Lóc Phao Hoa",
+        image: imagesData[3].url,
+        description:
+          "Cá Lóc Phao Hoa với hoa văn đẹp mắt, cá cảnh rất được yêu thích.",
+        categoryName: "Cá Dĩa",
+        price: 250000,
+        quantity: 12,
+      },
+      {
+        name: "Cá Lóc Trân Châu Ngũ Sắc",
+        image: imagesData[4].url,
+        description:
+          "Cá Lóc Trân Châu với 5 màu sắc khác nhau, rất quý hiếm và đẹp.",
+        categoryName: "Cá Dĩa",
+        price: 350000,
+        quantity: 8,
+      },
+      {
+        name: "Chép Koi Cao Cấp",
+        image: imagesData[5].url,
+        description:
+          "Chép Koi cao cấp với màu sắc và hoa văn tinh tế. Phù hợp cho hồ cá ngoài trời.",
+        categoryName: "Cá Dĩa",
+        price: 500000,
+        quantity: 5,
+      },
+      {
+        name: "Chép Koi Nhật Bản",
+        image: imagesData[6].url,
+        description:
+          "Chép Koi nhập khẩu từ Nhật Bản, chất lượng cao cấp.",
+        categoryName: "Cá Dĩa",
+        price: 450000,
+        quantity: 6,
+      },
+      {
+        name: "Chép Koi F1",
+        image: imagesData[7].url,
+        description:
+          "Chép Koi F1 lai tạo, màu sắc đẹp và giá cả phải chăng.",
+        categoryName: "Cá Dĩa",
+        price: 300000,
+        quantity: 10,
+      },
+      {
+        name: "Chép Nam Dương",
+        image: imagesData[8].url,
+        description:
+          "Chép Nam Dương với màu sắc rực rỡ, cá cảnh dễ nuôi.",
+        categoryName: "Cá Dĩa",
+        price: 280000,
+        quantity: 15,
+      },
+      {
+        name: "Cá Kim Cương Đỏ",
+        image: imagesData[9].url,
+        description:
+          "Cá Kim Cương Đỏ với màu đỏ rực rỡ như kim cương.",
+        categoryName: "Cá Thần Tiên",
+        price: 400000,
+        quantity: 10,
+      },
+      {
+        name: "Cá Kim Cương Đỏ Short Body",
+        image: imagesData[0].url,
+        description:
+          "Cá Kim Cương Đỏ thân ngắn, dễ nuôi hơn và giá rẻ hơn.",
+        categoryName: "Cá Thần Tiên",
+        price: 320000,
+        quantity: 18,
+      },
+      {
+        name: "Cá Kim Cương Xanh",
+        image: imagesData[1].url,
+        description:
+          "Cá Kim Cương Xanh với màu xanh sapphire đẹp mắt.",
+        categoryName: "Cá Thần Tiên",
+        price: 380000,
+        quantity: 12,
+      },
+      {
+        name: "Cá Lóc Cầu Vòng Cao Cấp",
+        image: imagesData[2].url,
+        description:
+          "Cá Lóc Cầu Vòng cao cấp với hoa văn cầu vòng đẹp mắt.",
+        categoryName: "Cá Dĩa",
+        price: 600000,
+        quantity: 4,
+      },
+      {
+        name: "Cá Lóc Hoa Tiên Cá Đầy",
+        image: imagesData[3].url,
+        description: "Cá Lóc Hoa Tiên với hoa văn cầu vòng đầy đặn.",
+        categoryName: "Cá Dĩa",
+        price: 420000,
+        quantity: 8,
+      },
+      {
+        name: "Cá Lóc Rồng Đỏ",
+        image: imagesData[4].url,
+        description: "Cá Lóc Rồng Đỏ với hoa văn rồng phượng hoàng.",
+        categoryName: "Cá Phượng Hoàng",
+        price: 550000,
+        quantity: 6,
+      },
+      {
+        name: "Cá Lóc Tiểu Hoàng Đế",
+        image: imagesData[5].url,
+        description: "Cá Lóc Tiểu Hoàng Đế với màu sắc hoàng gia.",
+        categoryName: "Cá Phượng Hoàng",
+        price: 480000,
+        quantity: 7,
+      },
+      {
+        name: "Cá Lóc Trân Châu",
+        image: imagesData[6].url,
+        description:
+          "Cá Lóc Trân Châu với các chấm trân châu đẹp mắt.",
+        categoryName: "Cá Dĩa",
+        price: 360000,
+        quantity: 11,
+      },
+      {
+        name: "Rêu Bích Cao Cấp",
+        image: imagesData[7].url,
+        description:
+          "Rêu bích nhập khẩu cao cấp cho hồ cá thủy sinh.",
+        categoryName: "Tép Thuỷ Sinh",
+        price: 150000,
+        quantity: 30,
+      },
+      {
+        name: "Demo Product 1",
+        image: imagesData[8].url,
+        description: "Sản phẩm demo 1 để test hệ thống.",
+        categoryName: "Cá Neon",
+        price: 100000,
+        quantity: 20,
+      },
+      {
+        name: "Demo Product 2",
+        image: imagesData[9].url,
+        description: "Sản phẩm demo 2 để test hệ thống.",
+        categoryName: "Cá Bảy Màu",
+        price: 120000,
+        quantity: 22,
+      },
+      {
+        name: "Demo Product 3",
+        image: imagesData[0].url,
+        description: "Sản phẩm demo 3 để test hệ thống.",
+        categoryName: "Cá Ali Thái",
+        price: 130000,
+        quantity: 25,
+      },
     ];
 
-    const fishDescriptions = [
-      "Cá Neon Tetra màu đỏ tươi sáng, rất năng động và dễ chăm sóc. Phù hợp cho hồ cá cộng đồng.",
-      "Cá Algae Eater vàng chuyên ăn tảo, giúp giữ hồ cá luôn sạch sẽ. Thích hợp cho hồ cá mới.",
-      "Cá Pleco đen với thân hình mạnh mẽ, chuyên ăn thức ăn thừa và tảo. Cá cảnh dễ nuôi.",
-      "Cá Pleco trắng với màu sắc nổi bật, rất hiếm và đẹp. Thích hợp cho hồ cá show.",
-      "Cá Corydora Albino màu trắng hồng, rất hiền hòa và dễ sinh sản. Lý tưởng cho hồ cá nhỏ.",
-      "Cá Pleco Albino màu trắng tinh khôi, rất quý hiếm. Giúp vệ sinh hồ cá tự nhiên.",
-      "Cá Garra Panda với màu đen trắng tương phản, rất độc đáo. Thích hợp cho hồ cá châu Á.",
-      "Cá Corydora Pepper với màu nâu đỏ đặc trưng, cá nền hoàn hảo cho hồ cá nhỏ.",
-      "Cá Corydora Albino Hồng với màu hồng đặc trưng, rất xinh đẹp. Thích hợp cho hồ cá thủy sinh.",
-      "Cá Corydora Panda với hoa văn đen trắng, cá cảnh rất được yêu thích.",
-    ];
-
-    // Assign specific categories to different fish types
-    const categoryAssignments = [
-      categories.find((c) => c.name === "Cá Neon"), // Neon Tetra -> Cá Neon category
-      categories.find((c) => c.name === "Lau Kiếng, Vệ Sinh Hồ"), // Algae Eater -> Lau Kiếng category
-      categories.find((c) => c.name === "Lau Kiếng, Vệ Sinh Hồ"), // Pleco Đen -> Lau Kiếng category
-      categories.find((c) => c.name === "Lau Kiếng, Vệ Sinh Hồ"), // Pleco Trắng -> Lau Kiếng category
-      categories.find((c) => c.name === "Cá Chuột"), // Corydora Albino -> Cá Chuột category
-      categories.find((c) => c.name === "Lau Kiếng, Vệ Sinh Hồ"), // Pleco Albino -> Lau Kiếng category
-      categories.find((c) => c.name === "Cá Dĩa"), // Garra Panda -> Cá Dĩa category
-      categories.find((c) => c.name === "Cá Chuột"), // Corydora Pepper -> Cá Chuột category
-      categories.find((c) => c.name === "Cá Chuột"), // Corydora Albino -> Cá Chuột category
-      categories.find((c) => c.name === "Cá Chuột"), // Corydora Panda -> Cá Chuột category
-    ];
-
-    for (let i = 0; i < fishImagesData.images.length; i++) {
-      const fishImage = fishImagesData.images[i];
+    for (const productData of productsData) {
       const existingProduct = await productRepo.findOne({
-        where: { name: fishNames[i] },
+        where: { name: productData.name },
       });
 
       if (!existingProduct) {
-        // Create product with meaningful data
+        // Find category by name
+        const category =
+          categories.find(
+            (c) => c.name === productData.categoryName
+          ) ||
+          categories[Math.floor(Math.random() * categories.length)];
+
+        // Create product with local image
         const product = productRepo.create({
-          name: fishNames[i],
-          price: Math.floor(Math.random() * 500000) + 50000, // Random price between 50k-550k VND
-          image: fishImage.url,
-          description: fishDescriptions[i],
-          quantity: Math.floor(Math.random() * 50) + 10, // Random quantity 10-60
+          name: productData.name,
+          price: productData.price,
+          image: productData.image,
+          description: productData.description,
+          quantity: productData.quantity,
           storage: true,
-          category:
-            categoryAssignments[i] ||
-            categories[Math.floor(Math.random() * categories.length)], // Use assigned category or random
+          category: category,
         });
 
         await productRepo.save(product);
@@ -200,7 +382,7 @@ async function seedDatabase() {
     console.log("\n✅ Database seeding completed successfully!");
     console.log(`📊 Summary:`);
     console.log(`   - Categories: ${categories.length}`);
-    console.log(`   - Products: ${fishImagesData.images.length}`);
+    console.log(`   - Products: ${productsData.length}`);
     console.log(`   - Users: ${users.length}`);
   } catch (error) {
     console.error("❌ Error seeding database:", error);
