@@ -1,0 +1,28 @@
+{
+  "section_1": {
+    "body": {
+      "paragraph_1": "Tôi là chuyên viên bất động sản có hơn 5 năm kinh nghiệm.",
+      "paragraph_2": "Tôi đã giúp hơn 100 khách hàng tìm được ngôi nhà mơ ước."
+    },
+    "title": "Giới thiệu về tôi"
+  },
+  "section_2": {
+    "body": [
+      {
+        "role": "Nhân viên kinh doanh",
+        "year": "2020",
+        "company": "Công ty A"
+      },
+      {
+        "role": "Quản lý dự án",
+        "year": "2022",
+        "company": "Công ty B"
+      }
+    ],
+    "title": "Kinh nghiệm làm việc"
+  },
+  "contact_info": {
+    "email": "nva@company-a.com",
+    "phone": "+84912345678"
+  }
+}
