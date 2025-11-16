@@ -6,6 +6,7 @@ import * as paypal from "paypal-rest-sdk";
 import { CartItemsEntity } from "../entity/cartItems.entity";
 import { SaledProductServices } from "./saledProduct.services";
 
+
 export class CartServices {
   private static cartRepo = dbConfig.getRepository(CartEntity);
 
@@ -174,6 +175,74 @@ export class CartServices {
     } catch (error) {
       throw new Error(`Error completing payment: ${error.message}`);
     }
+  };
+
+  // Thanh toán nội bộ (không qua PayPal): trừ tồn kho, tạo SaledProduct, xoá cart items
+  static checkoutAndClearCart = async (cartId: number) => {
+    // Adapted to use project's DataSource (`dbConfig`) and existing entities/relations
+    return dbConfig.transaction(async (manager) => {
+      const cartRepo = manager.getRepository(CartEntity);
+      const productRepo = manager.getRepository(Product);
+      const cartItemRepo = manager.getRepository(CartItemsEntity);
+
+      // 1. Load cart with items and products
+      const cart = await cartRepo.findOne({
+        where: { id: cartId },
+        relations: ["cart_items", "cart_items.product_id"],
+      });
+
+      if (!cart) {
+        const err: any = new Error("Cart không tồn tại");
+        err.code = "CART_NOT_FOUND";
+        throw err;
+      }
+
+      if (!cart.cart_items || cart.cart_items.length === 0) {
+        const err: any = new Error("Giỏ hàng đang trống");
+        err.code = "CART_EMPTY";
+        throw err;
+      }
+
+      // 2. Check stock
+      for (const item of cart.cart_items) {
+        const product = item.product_id as any;
+        if (product.quantity < item.quantity) {
+          const err: any = new Error(
+            `Sản phẩm "${product.name}" không đủ số lượng trong kho`
+          );
+          err.code = "OUT_OF_STOCK";
+          throw err;
+        }
+      }
+
+      // 3. Decrement stock and save products
+      let totalAmount = 0;
+      for (const item of cart.cart_items) {
+        const product = item.product_id as any;
+        product.quantity -= item.quantity;
+        await productRepo.save(product);
+        totalAmount += (product.price || 0) * item.quantity;
+
+        // create SaledProduct record if your flow needs it
+        await SaledProductServices.createSaledProductByCartItem(item);
+      }
+
+      // 4. Clear cart items and mark cart as PAID
+      for (const item of cart.cart_items) {
+        await cartItemRepo.remove(item);
+      }
+
+      cart.cart_items = [] as any;
+      (cart as any).status = "PAID";
+      await cartRepo.save(cart);
+
+      // 5. Return summary
+      return {
+        cartId: cart.id,
+        totalAmount,
+        items: [],
+      };
+    });
   };
 
   static deleteCartByID = async (id: number) => {
