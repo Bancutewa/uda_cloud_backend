@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/user.services";
-import { FindOptionsOrderValue } from "typeorm";
 import { CartServices } from "../services/cart.services";
-import * as paypal from "paypal-rest-sdk";
 import { CartEntity } from "../entity/cart.entity";
 
 export class CartController {
+  // Lấy tất cả cart (admin dùng)
   static getAllCart = async (req: Request, res: Response) => {
     try {
       const query = {
@@ -17,16 +15,21 @@ export class CartController {
         message: "Success",
         carts: carts,
       });
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
+
+  // Lấy cart theo id
   static getCartById = async (req: Request, res: Response) => {
     try {
       const cartId = +req.params.id;
       const cart = await CartServices.getCartById(cartId);
+      if (!cart) {
+        return res.status(404).json({ error: "Cart not found" });
+      }
       res.status(200).json(cart);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
@@ -34,89 +37,72 @@ export class CartController {
   static checkoutCartByID = async (req: Request, res: Response) => {
     try {
       const cartId = +req.params.id;
-      const approvalUrl = await CartServices.checkoutCartByID(cartId);
-      if (!approvalUrl) {
-        return res.status(404).send("Approval URL not found");
-      }
-      res.status(200).json({
-        message: "Payment successful and cart updated",
-        approvalUrl,
+
+      const result = await CartServices.checkoutAndClearCart(cartId);
+
+      return res.status(200).json({
+        message: "Thanh toán thành công, giỏ hàng đã được xử lý",
+        cartId: result.cartId,
+        totalAmount: result.totalAmount,
+        items: result.items,
       });
-    } catch (error) {
-      // Consider more specific error handling
-      res.status(500).json({ error: error.message });
+    } catch (error: any) {
+      // thiếu hàng trong kho
+      if (error.code === "OUT_OF_STOCK") {
+        return res.status(400).json({ error: error.message });
+      }
+
+      // giỏ hàng không tồn tại
+      if (error.code === "CART_NOT_FOUND") {
+        return res.status(404).json({ error: error.message });
+      }
+
+      console.error("Checkout error:", error);
+      return res
+        .status(500)
+        .json({ error: "Lỗi khi thanh toán giỏ hàng" });
     }
   };
-  static checkoutCartByIDSuccess = async (req: Request, res: Response) => {
+
+  // Tuỳ bạn còn dùng 2 cái này không, có thể để nguyên:
+  static checkoutCartByIDSuccess = async (
+    req: Request,
+    res: Response
+  ) => {
     try {
-      const payerId = req.query.PayerID as string;
-      const paymentId = req.query.paymentId as string;
       const cartId = +req.params.id;
-
-      await CartServices.completePayment(cartId, payerId, paymentId);
-      const successUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/success`;
-      res.redirect(successUrl);
-    } catch (error) {
+      const successUrl = `${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/payment/success?cartId=${cartId}`;
+      return res.redirect(successUrl);
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
-  static checkoutCartByIDFail = async (req: Request, res: Response) => {
+
+  static checkoutCartByIDFail = async (
+    req: Request,
+    res: Response
+  ) => {
     try {
-      const failUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/payment/fail`;
-      res.redirect(failUrl);
-    } catch (error) {
+      const cartId = +req.params.id;
+      const failUrl = `${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/payment/fail?cartId=${cartId}`;
+      return res.redirect(failUrl);
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
-  };  
+  };
 
+  // Tạo cart mới
   static createCart = async (req: Request, res: Response) => {
     try {
       const cartReq = req.body as CartEntity;
       const cartNew = await CartServices.createOneCart(cartReq);
       res.status(201).json(cartNew);
-    } catch (error) {
+    } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   };
-
-  //   static updateUser = async (req: Request, res: Response) => {
-  //     try {
-  //       const { id } = req.body;
-
-  //       const userByID = await UserService.getUserById(id);
-  //       const userUpdate = await UserService.updateUser(
-  //         userByID,
-  //         req.body as UsersEntity
-  //       );
-  //       res.status(201).json(userUpdate);
-  //     } catch (error) {
-  //       res.status(500).json({ error: error.message });
-  //     }
-  //   };
-
-  //   static deleteUserByID = async (req: Request, res: Response) => {
-  //     try {
-  //       await UserService.deleteUserByID(+req.params.id);
-  //       res.status(204).end();
-  //     } catch (error) {
-  //       res.status(500).json({ error: error.message });
-  //     }
-  //   };
-  //   static deleteManyUsersByID = async (req: Request, res: Response) => {
-  //     try {
-  //       if (req.query.arrayID) {
-  //         const ids_delete: number[] = Array.isArray(req.query.arrayID)
-  //           ? req.query.arrayID.map(Number)
-  //           : [Number(req.query.arrayID)];
-  //         await UserService.deleteManyUsers(ids_delete);
-  //         res.status(204).end();
-  //       } else {
-  //         await UserService.deleteAllUsers();
-  //         res.status(204).end();
-  //       }
-  //       res.status(204).end();
-  //     } catch (error) {
-  //       res.status(500).json({ error: error.message });
-  //     }
-  //   };
 }
