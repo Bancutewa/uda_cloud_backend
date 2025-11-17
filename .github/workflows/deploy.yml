@@ -1,0 +1,34 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: ["main"] # deploy khi push vào nhánh main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: SSH into EC2 and deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/uda_cloud/uda_cloud_backend
+
+            echo "Pulling latest code..."
+            git pull
+
+            echo "Rebuilding backend..."
+            cd ~/uda_cloud
+            docker-compose build backend --no-cache
+
+            echo "Restarting system..."
+            docker-compose up -d
+
+            docker system prune -f

@@ -67,7 +67,7 @@ export class CartController {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  };
+  };  
 
   static createCart = async (req: Request, res: Response) => {
     try {
